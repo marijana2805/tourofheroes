@@ -1,0 +1,5 @@
+<div *ngIf="porukaService.poruka.length">
+  <h2>Poruka</h2>
+  <button class="clear" (click)="porukaService.clear()" >clear</button>
+  <div *ngFor='let poruka of porukaService.poruka'>{{poruka}}</div>
+</div>
