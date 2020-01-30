@@ -4,20 +4,42 @@ import {Herojke} from './topheroji';
 import {Observable, of } from 'rxjs';
 import {PorukaService} from './poruka.service';
 
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {catchError, map, tap} from 'rxjs/operators';
+
 @Injectable({
   providedIn: 'root',
 })
 export class HerojiService {
-  constructor(private porukaService: PorukaService) {
+  private  heroesUrl = 'api/heroes';
+  private handleError<T>(operation= 'operation', result?: T) {
+    return(error: any): Observable<T> => {
+      console.error(error);
+      this.log(`${operation} failed: ${error.poruka}`);
+      return of(result as T);
+    };
+  }
+  constructor(private porukaService: PorukaService,
+              private http: HttpClient) {
   }
 
   getHerojke(): Observable<Heroji[]> {
-    this.porukaService.add('HeroService: fetched heroes');
-    return of(Herojke);
+   return this.http.get<Heroji[]>(this.heroesUrl)
+     .pipe(
+       tap(_ => this.log('fetched hero')),
+       catchError(this.handleError<Heroji[]>('getHero', []))
+     );
   }
 
   getHero(id: number): Observable<Heroji> {
-    this.porukaService.add('HerojiService: fetched hero id=${id}');
-    return of(Herojke.find(hero => hero.id === id));
+    const url = `${this.heroesUrl}/${id}`;
+    return this.http.get<Heroji>(url).pipe(
+      tap(_ => this.log(`fetched hero id=${id}`)),
+      catchError(this.handleError<Heroji>(`getHero id=${id}`))
+    );
+  }
+
+  private log(poruka: string) {
+    this.porukaService.add(`HerojiService: ${poruka}`);
   }
 }
