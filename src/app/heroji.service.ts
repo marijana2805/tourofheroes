@@ -81,6 +81,4 @@ export class HerojiService {
       catchError(this.handleError<Heroji[]>('search hero, []'))
     );
   }
-
-
 }
